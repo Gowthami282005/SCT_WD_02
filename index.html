@@ -1,0 +1,158 @@
+<<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        .stopwatch-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 350px;
+        }
+
+        .display {
+            font-size: 2em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .buttons button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        #startPauseBtn {
+            background: #28a745;
+            color: white;
+        }
+
+        #startPauseBtn.pause {
+            background: #dc3545;
+        }
+
+        #lapBtn {
+            background: #007bff;
+            color: white;
+        }
+
+        #resetBtn {
+            background: #ffc107;
+            color: black;
+        }
+
+        .laps {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .laps li {
+            background: #ddd;
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch-container">
+        <h1>Stopwatch</h1>
+        <div class="display">00:00:00</div>
+        <div class="buttons">
+            <button id="startPauseBtn">Start</button>
+            <button id="lapBtn" disabled>Lap</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <ul class="laps"></ul>
+    </div>
+
+    <script>
+        let timer;
+        let startTime;
+        let elapsedTime = 0;
+        let running = false;
+        let lapCount = 0;
+
+        const display = document.querySelector(".display");
+        const startPauseBtn = document.getElementById("startPauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const lapBtn = document.getElementById("lapBtn");
+        const lapList = document.querySelector(".laps");
+
+        function updateTime() {
+            const now = Date.now();
+            elapsedTime = now - startTime;
+
+            let totalMilliseconds = elapsedTime;
+            let hours = Math.floor(totalMilliseconds / 3600000);
+            let minutes = Math.floor((totalMilliseconds % 3600000) / 60000);
+            let seconds = Math.floor((totalMilliseconds % 60000) / 1000);
+
+            display.innerHTML =
+                `${String(hours).padStart(2, "0")}:` +
+                `${String(minutes).padStart(2, "0")}:` +
+                `${String(seconds).padStart(2, "0")}`;
+        }
+
+        function startPause() {
+            if (!running) {
+                startTime = Date.now() - elapsedTime;
+                timer = setInterval(updateTime, 1000);
+                startPauseBtn.textContent = "Pause";
+                startPauseBtn.classList.add("pause");
+                lapBtn.disabled = false;
+            } else {
+                clearInterval(timer);
+                startPauseBtn.textContent = "Start";
+                startPauseBtn.classList.remove("pause");
+                lapBtn.disabled = true;
+            }
+            running = !running;
+        }
+
+        function reset() {
+            clearInterval(timer);
+            elapsedTime = 0;
+            running = false;
+            display.innerHTML = "00:00:00";
+            startPauseBtn.textContent = "Start";
+            startPauseBtn.classList.remove("pause");
+            lapBtn.disabled = true;
+            lapList.innerHTML = "";
+            lapCount = 0;
+        }
+
+        function recordLap() {
+            lapCount++;
+            const lapTime = document.createElement("li");
+            lapTime.textContent = `Lap ${lapCount}: ${display.innerHTML}`;
+            lapList.appendChild(lapTime);
+        }
+
+        startPauseBtn.addEventListener("click", startPause);
+        resetBtn.addEventListener("click", reset);
+        lapBtn.addEventListener("click", recordLap);
+    </script>
+</body>
+</html>
